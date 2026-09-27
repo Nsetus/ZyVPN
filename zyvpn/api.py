@@ -188,7 +188,7 @@ class VpnApi:
             "country_name": "Не подключено",
             "country_name_en": "Disconnected",
             "city": "",
-            "flag_emoji": "🌐",
+            "flag_emoji": "",
             "flag_url": ""
         }
         self._ip_fetch_lock = threading.Lock()

@@ -22,6 +22,21 @@ def build():
     except Exception:
         pass
 
+    # Clear old executable if still present or locked
+    target_exe = os.path.join(BASE_DIR, "dist", "release", "ZyVPN", "ZyVPN.exe")
+    if os.path.exists(target_exe):
+        try:
+            os.remove(target_exe)
+        except Exception:
+            try:
+                temp_old = target_exe + ".old"
+                if os.path.exists(temp_old):
+                    try: os.remove(temp_old)
+                    except Exception: pass
+                os.rename(target_exe, temp_old)
+            except Exception:
+                pass
+
     ui_dir = os.path.join(BASE_DIR, "zyvpn", "ui")
     add_data_arg = f"{ui_dir};ui"
     

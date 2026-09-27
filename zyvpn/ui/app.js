@@ -83,26 +83,48 @@ async function callApi(method, ...args) {
   }
 }
 
-// Navigation Tabs
-document.querySelectorAll(".tab-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-    btn.classList.add("active");
-    const target = document.getElementById(`tab-${btn.dataset.tab}`);
-    if (target) target.classList.add("active");
-    if (btn.dataset.tab === "servers") {
+// Navigation Drawers (Slide-Up Panels)
+function openDrawer(drawerId) {
+  const drawer = document.getElementById(`drawer-${drawerId}`);
+  if (drawer) {
+    document.querySelectorAll(".widget-drawer").forEach(d => d.classList.remove("drawer-open"));
+    drawer.classList.add("drawer-open");
+    if (drawerId === "servers") {
       renderServers();
-    } else if (btn.dataset.tab === "checker") {
+    } else if (drawerId === "options" || drawerId === "checker") {
       renderCheckerServices();
     }
+  }
+}
+
+function closeDrawer(drawerId) {
+  if (drawerId) {
+    const drawer = document.getElementById(`drawer-${drawerId}`);
+    if (drawer) drawer.classList.remove("drawer-open");
+  } else {
+    document.querySelectorAll(".widget-drawer").forEach(d => d.classList.remove("drawer-open"));
+  }
+}
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const drawerId = btn.dataset.drawer || btn.dataset.tab;
+    openDrawer(drawerId);
   });
 });
 
-document.getElementById("selected-node-trigger").addEventListener("click", () => {
-  const serversBtn = document.querySelector('[data-tab="servers"]');
-  if (serversBtn) serversBtn.click();
+document.querySelectorAll("[data-close-drawer]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    closeDrawer(btn.dataset.closeDrawer);
+  });
 });
+
+const selectedNodeTrigger = document.getElementById("selected-node-trigger");
+if (selectedNodeTrigger) {
+  selectedNodeTrigger.addEventListener("click", () => {
+    openDrawer("servers");
+  });
+}
 
 // Format Uptime Seconds to HH:MM:SS
 function formatUptime(seconds) {
@@ -113,12 +135,14 @@ function formatUptime(seconds) {
 }
 
 // Country Flag and Subtitle Helpers
+const GLOBE_SVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`;
+
 function getFlagHtml(node) {
   const code = (node.country_code || "").toLowerCase();
   if (code && code !== "un") {
-    return `<img src="flags/${code}.png" class="flag-icon" onerror="this.outerHTML='<span class=\\'flag-emoji\\'>${node.flag || '🌐'}</span>'" alt="${code}">`;
+    return `<img src="flags/${code}.png" class="flag-icon" onerror="this.outerHTML='<span class=\\'flag-placeholder-icon\\'>${GLOBE_SVG}</span>'" alt="${code}">`;
   }
-  return `<span class="flag-emoji">${node.flag || '🌐'}</span>`;
+  return `<span class="flag-placeholder-icon">${GLOBE_SVG}</span>`;
 }
 
 function getNodeSubtitle(node) {
@@ -155,9 +179,9 @@ function renderSelectedNode() {
   const pingEl = document.getElementById("selected-node-ping");
 
   if (!node) {
-    if (flagEl) flagEl.innerHTML = `<span class="flag-emoji">🌐</span>`;
+    if (flagEl) flagEl.innerHTML = `<span class="flag-placeholder-icon">${GLOBE_SVG}</span>`;
     nameEl.textContent = "Сервер не выбран";
-    if (subEl) subEl.textContent = "Добавьте подписку или сервер";
+    if (subEl) subEl.textContent = "Нажмите для выбора из списка";
     pingEl.textContent = "- ms";
     pingEl.className = "ping-tag";
     return;
@@ -261,8 +285,12 @@ function renderServers() {
       </div>
       <div class="server-card-right">
         <span class="ping-tag ${pingClass}">${pingText}</span>
-        <button class="btn-icon btn-ping-node" data-id="${node.id}" title="Проверить пинг">⚡</button>
-        <button class="btn-icon danger btn-del-node" data-id="${node.id}" title="Удалить">✕</button>
+        <button class="btn-icon btn-ping-node" data-id="${node.id}" title="Проверить отклик">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </button>
+        <button class="btn-icon danger btn-del-node" data-id="${node.id}" title="Удалить">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
     `;
 
@@ -328,7 +356,7 @@ function renderSubscriptions() {
         <div style="font-size: 11px; color: #64748b; margin-top: 2px; word-break: break-all;">${escapeHtml(sub.url)}</div>
       </div>
       <div style="display: flex; gap: 8px;">
-        <button class="btn-action btn-refresh-sub" data-id="${sub.id}">🔄 Обновить</button>
+        <button class="btn-action btn-refresh-sub" data-id="${sub.id}">Обновить</button>
         <button class="btn-icon danger btn-del-sub" data-id="${sub.id}">Удалить</button>
       </div>
     `;
@@ -351,7 +379,7 @@ function renderSubscriptions() {
       } catch (err) {
         alert(`Ошибка сети: ${err}`);
       } finally {
-        btn.textContent = "🔄 Обновить";
+        btn.textContent = "Обновить";
         btn.disabled = false;
       }
     });
@@ -472,17 +500,20 @@ async function toggleConnection() {
   connectBtn.disabled = true;
 
   try {
+    const ring = document.getElementById("power-glow-ring");
     if (state.status.status === "connected") {
-      connectBtn.className = "connect-btn";
-      connectLabel.textContent = "ОТКЛЮЧЕНИЕ...";
+      connectBtn.className = "power-btn";
+      if (ring) ring.className = "power-glow-ring";
+      connectLabel.textContent = "Отключаемся...";
       await callApi("disconnect");
     } else {
-      connectBtn.className = "connect-btn connecting";
-      connectLabel.textContent = "ПОДКЛЮЧЕНИЕ...";
+      connectBtn.className = "power-btn connecting";
+      if (ring) ring.className = "power-glow-ring connecting";
+      connectLabel.textContent = "Подключаемся...";
       const selId = state.settings.selected_node_id;
       const res = await callApi("connect", selId);
       if (!res.success) {
-        alert(`Ошибка подключения: ${res.error}`);
+        alert(`Не удалось подключиться: ${res.error}`);
       }
     }
     await pollStatus();
@@ -499,26 +530,30 @@ function updateStatusUI(st) {
   const prevStatus = state.status ? state.status.status : "";
   state.status = st;
   const s = st.status;
+  const ring = document.getElementById("power-glow-ring");
 
   if (s === "connected") {
-    connectBtn.className = "connect-btn connected";
-    connectLabel.textContent = "ОТКЛЮЧИТЬ";
+    connectBtn.className = "power-btn connected";
+    if (ring) ring.className = "power-glow-ring connected";
+    connectLabel.textContent = "Отключить";
     headerStatus.className = "header-status status-connected";
     if (state.ipInfo && state.ipInfo.country_name) {
-      statusText.textContent = `${state.ipInfo.flag_emoji || ''} ${state.ipInfo.country_name}`;
+      statusText.textContent = state.ipInfo.country_name;
     } else {
-      statusText.textContent = "Подключено";
+      statusText.textContent = "В сети";
     }
   } else if (s === "connecting") {
-    connectBtn.className = "connect-btn connecting";
-    connectLabel.textContent = "ПОДКЛЮЧЕНИЕ...";
+    connectBtn.className = "power-btn connecting";
+    if (ring) ring.className = "power-glow-ring connecting";
+    connectLabel.textContent = "Подключаемся...";
     headerStatus.className = "header-status status-connecting";
     statusText.textContent = "Подключение...";
   } else {
-    connectBtn.className = "connect-btn";
-    connectLabel.textContent = "ПОДКЛЮЧИТЬ";
-    headerStatus.className = "header-status";
-    statusText.textContent = "Отключено";
+    connectBtn.className = "power-btn";
+    if (ring) ring.className = "power-glow-ring";
+    connectLabel.textContent = "Подключить";
+    headerStatus.className = "header-status status-disconnected";
+    statusText.textContent = "Не подключено";
   }
 
   // Trigger IP refresh when status changes
@@ -624,44 +659,44 @@ function renderIpInfo() {
   if (isConnected && info && info.success) {
     const code = (info.country_code || "").toLowerCase();
     if (code && code !== "un") {
-      flagBox.innerHTML = `<img src="flags/${code}.png" class="flag-icon" onerror="this.outerHTML='<span class=\\'flag-emoji\\'>${info.flag_emoji || '🌐'}</span>'" alt="${code}">`;
+      flagBox.innerHTML = `<img src="flags/${code}.png" class="flag-icon" onerror="this.outerHTML='<span class=\\'flag-placeholder-icon\\'>${GLOBE_SVG}</span>'" alt="${code}">`;
     } else {
-      flagBox.innerHTML = `<span class="flag-emoji">${info.flag_emoji || '🌐'}</span>`;
+      flagBox.innerHTML = `<span class="flag-placeholder-icon">${GLOBE_SVG}</span>`;
     }
     badgeEl.textContent = "VPN IP";
     badgeEl.className = "ip-badge-status connected";
-    countryEl.textContent = `${info.flag_emoji || ''} ${info.country_name || 'Швеция'}`;
+    countryEl.textContent = info.country_name || "Защищенное соединение";
     ipEl.textContent = info.ip || "—";
     cityEl.textContent = info.city ? `(${info.city})` : "";
 
     // Update Header Status as well
     if (headerStatus && statusText) {
       headerStatus.className = "header-status status-connected";
-      statusText.textContent = `${info.flag_emoji || '●'} ${info.country_name || 'Подключено'}`;
+      statusText.textContent = info.country_name || "В сети";
     }
   } else if (isConnected) {
-    badgeEl.textContent = "Подключение";
+    badgeEl.textContent = "Поиск";
     badgeEl.className = "ip-badge-status";
-    countryEl.textContent = "Определение IP...";
+    countryEl.textContent = "Определяем сеть...";
     ipEl.textContent = "—";
     cityEl.textContent = "";
-    flagBox.innerHTML = `<span class="flag-emoji">🌐</span>`;
+    flagBox.innerHTML = `<span class="flag-placeholder-icon">${GLOBE_SVG}</span>`;
   } else {
-    badgeEl.textContent = "Реальный IP";
+    badgeEl.textContent = "Провайдер";
     badgeEl.className = "ip-badge-status";
     if (info && info.ip && info.ip !== "—") {
       const code = (info.country_code || "").toLowerCase();
       if (code && code !== "un") {
-        flagBox.innerHTML = `<img src="flags/${code}.png" class="flag-icon" onerror="this.outerHTML='<span class=\\'flag-emoji\\'>${info.flag_emoji || '🌐'}</span>'" alt="${code}">`;
+        flagBox.innerHTML = `<img src="flags/${code}.png" class="flag-icon" onerror="this.outerHTML='<span class=\\'flag-placeholder-icon\\'>${GLOBE_SVG}</span>'" alt="${code}">`;
       } else {
-        flagBox.innerHTML = `<span class="flag-emoji">${info.flag_emoji || '🌐'}</span>`;
+        flagBox.innerHTML = `<span class="flag-placeholder-icon">${GLOBE_SVG}</span>`;
       }
-      countryEl.textContent = info.country_name || "Без VPN";
+      countryEl.textContent = info.country_name || "Прямое подключение";
       ipEl.textContent = info.ip;
       cityEl.textContent = info.city ? `(${info.city})` : "";
     } else {
-      flagBox.innerHTML = `<span class="flag-emoji">🌐</span>`;
-      countryEl.textContent = "Защита отключена";
+      flagBox.innerHTML = `<span class="flag-placeholder-icon">${GLOBE_SVG}</span>`;
+      countryEl.textContent = "Защита не включена";
       ipEl.textContent = "—";
       cityEl.textContent = "";
     }
@@ -708,52 +743,52 @@ function renderCheckerServices() {
 
   container.innerHTML = DEFAULT_SERVICES.map(svc => {
     const res = state.servicesResults[svc.id];
-    const icon = SERVICE_ICONS[svc.id] || `<span style="font-size: 18px;">🌐</span>`;
+    const icon = SERVICE_ICONS[svc.id] || `<span class="flag-placeholder-icon">${GLOBE_SVG}</span>`;
 
     let statusTag = `<span class="check-tag check-pending">Не проверено</span>`;
     let geminiExtra = "";
 
     if (res) {
       if (res.running) {
-        statusTag = `<span class="check-tag check-running"><span class="spin-dot"></span> ${svc.id === 'gemini' ? 'Проверка диалога...' : 'Проверка...'}</span>`;
+        statusTag = `<span class="check-tag check-running"><span class="spin-dot"></span> ${svc.id === 'gemini' ? 'Проверяем диалог...' : 'Проверяем...'}</span>`;
       } else if (svc.id === "gemini") {
         if (res.can_chat) {
-          statusTag = `<span class="check-tag check-ok">🟢 Чат и AI работают (${res.latency_ms} ms)</span>`;
+          statusTag = `<span class="check-tag check-ok"><span class="status-indicator-dot dot-ok"></span> Доступен (${res.latency_ms} ms)</span>`;
           geminiExtra = `
             <div class="gemini-badge-row">
-              <span class="gemini-sub-badge ok">✓ Веб OK</span>
-              <span class="gemini-sub-badge ok">✓ Генерация разрешена</span>
-              <span class="gemini-sub-badge ok">✓ Шлюз OK</span>
-              <button class="btn-open-gemini-test" title="Проверить отправку сообщений в Gemini">💬 Тест диалога</button>
+              <span class="gemini-sub-badge ok">Веб OK</span>
+              <span class="gemini-sub-badge ok">Генерация доступна</span>
+              <span class="gemini-sub-badge ok">Шлюз OK</span>
+              <button class="btn-open-gemini-test" title="Проверить ответ Google Gemini">Проверить диалог</button>
             </div>
           `;
         } else if (res.web_ok && !res.region_eligible) {
-          statusTag = `<span class="check-tag check-warn">🟡 Только сайт (регион заблокирован)</span>`;
+          statusTag = `<span class="check-tag check-warn"><span class="status-indicator-dot dot-warn"></span> Ограничен в регионе</span>`;
           geminiExtra = `
             <div class="gemini-badge-row">
-              <span class="gemini-sub-badge ok">✓ Веб OK</span>
-              <span class="gemini-sub-badge fail">✕ Регион заблокирован Google</span>
-              <button class="btn-open-gemini-test" title="Подробнее">💬 Подробнее</button>
+              <span class="gemini-sub-badge ok">Веб OK</span>
+              <span class="gemini-sub-badge fail">Регион заблокирован Google</span>
+              <button class="btn-open-gemini-test" title="Подробнее">Подробнее</button>
             </div>
           `;
         } else {
-          statusTag = `<span class="check-tag check-fail">🔴 Чат недоступен</span>`;
+          statusTag = `<span class="check-tag check-fail"><span class="status-indicator-dot dot-fail"></span> Не отвечает</span>`;
           geminiExtra = `
             <div class="gemini-badge-row">
-              <span class="gemini-sub-badge fail">✕ Ошибка связи</span>
-              <button class="btn-open-gemini-test" title="Диагностика">💬 Диагностика</button>
+              <span class="gemini-sub-badge fail">Нет связи</span>
+              <button class="btn-open-gemini-test" title="Диагностика">Диагностика</button>
             </div>
           `;
         }
       } else if (res.ok) {
-        statusTag = `<span class="check-tag check-ok">🟢 Доступен (${res.latency_ms} ms)</span>`;
+        statusTag = `<span class="check-tag check-ok"><span class="status-indicator-dot dot-ok"></span> Доступен (${res.latency_ms} ms)</span>`;
       } else {
-        statusTag = `<span class="check-tag check-fail">🔴 Недоступен</span>`;
+        statusTag = `<span class="check-tag check-fail"><span class="status-indicator-dot dot-fail"></span> Недоступен</span>`;
       }
     } else if (svc.id === "gemini") {
       geminiExtra = `
         <div class="gemini-badge-row">
-          <button class="btn-open-gemini-test" title="Тестирование диалога">💬 Проверить диалог с ИИ</button>
+          <button class="btn-open-gemini-test" title="Проверить работу модели">Проверить диалог</button>
         </div>
       `;
     }
@@ -874,16 +909,16 @@ function updateCheckerSummary() {
 
   if (passed === total) {
     summaryBox.className = "checker-summary all-ok";
-    summaryIcon.textContent = "🟢";
-    summaryText.textContent = "Все популярные сервисы успешно открываются через VPN!";
+    summaryIcon.innerHTML = `<span class="status-indicator-dot dot-ok"></span>`;
+    summaryText.textContent = "Все сайты открываются без ограничений";
   } else if (passed > 0) {
     summaryBox.className = "checker-summary has-fails";
-    summaryIcon.textContent = "🟡";
-    summaryText.textContent = `Доступно ${passed} из ${total} сервисов. Часть ресурсов может требовать другой сервер.`;
+    summaryIcon.innerHTML = `<span class="status-indicator-dot dot-warn"></span>`;
+    summaryText.textContent = `Доступно ${passed} из ${total} сервисов`;
   } else {
     summaryBox.className = "checker-summary has-fails";
-    summaryIcon.textContent = "🔴";
-    summaryText.textContent = "Ни один сервис не ответил. Проверьте подключение к серверу.";
+    summaryIcon.innerHTML = `<span class="status-indicator-dot dot-fail"></span>`;
+    summaryText.textContent = "Ни один сервис не ответил. Проверьте сервер.";
   }
 }
 
@@ -909,7 +944,7 @@ function openGeminiModal() {
   let diagHtml = `
     <div class="gemini-diag-item">
       <span class="diag-label">Активный сервер:</span>
-      <span class="diag-val">${escapeHtml(nodeName)} (${isConnected ? '🟢 Подключен' : '⚪ Отключен'})</span>
+      <span class="diag-val">${escapeHtml(nodeName)} (${isConnected ? 'В сети' : 'Не подключен'})</span>
     </div>
   `;
   if (geminiRes && !geminiRes.running) {
@@ -917,19 +952,19 @@ function openGeminiModal() {
       <div class="gemini-diag-item">
         <span class="diag-label">Статус диалогов:</span>
         <span class="diag-val ${geminiRes.can_chat ? 'text-good' : 'text-fail'}">
-          ${geminiRes.can_chat ? '✓ Доступен для генерации' : '✕ Ограничен в регионе'}
+          ${geminiRes.can_chat ? 'Доступен для генерации' : 'Ограничен в регионе'}
         </span>
       </div>
       <div class="gemini-diag-item">
         <span class="diag-label">Региональный фильтр:</span>
         <span class="diag-val ${geminiRes.region_eligible ? 'text-good' : 'text-fail'}">
-          ${geminiRes.region_eligible ? '✓ Разрешен Google' : '✕ Блокировка по IP'}
+          ${geminiRes.region_eligible ? 'Разрешен' : 'Ограничен по IP'}
         </span>
       </div>
       <div class="gemini-diag-item">
         <span class="diag-label">Шлюз чата:</span>
         <span class="diag-val ${geminiRes.gw_ok ? 'text-good' : 'text-fail'}">
-          ${geminiRes.gw_ok ? '✓ 204 OK' : '✕ Не отвечает'}
+          ${geminiRes.gw_ok ? '204 OK' : 'Не отвечает'}
         </span>
       </div>
     `;
@@ -1012,6 +1047,37 @@ if (btnRunGemini) {
 window.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeGeminiModal();
 });
+
+const btnOpenGemini = document.getElementById("btn-open-gemini");
+if (btnOpenGemini) {
+  btnOpenGemini.addEventListener("click", openGeminiModal);
+}
+
+const btnQuickImport = document.getElementById("btn-quick-import");
+const quickLinkInput = document.getElementById("quick-link-input");
+if (btnQuickImport && quickLinkInput) {
+  btnQuickImport.addEventListener("click", async () => {
+    const val = quickLinkInput.value.trim();
+    if (!val) return;
+    btnQuickImport.disabled = true;
+    try {
+      const res = await callApi("import_links", val);
+      if (res.success) {
+        quickLinkInput.value = "";
+        const data = await callApi("get_initial_data");
+        state.nodes = data.nodes || [];
+        renderServers();
+        renderSelectedNode();
+      } else {
+        alert(res.error || "Ошибка импорта");
+      }
+    } catch (e) {
+      alert(`Ошибка: ${e}`);
+    } finally {
+      btnQuickImport.disabled = false;
+    }
+  });
+}
 
 // Status Poller with concurrency guard
 let isPolling = false;

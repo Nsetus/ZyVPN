@@ -284,13 +284,13 @@ def main():
             title="ZyVPN",
             url=os.path.join(UI_DIR, "index.html"),
             js_api=api,
-            width=840,
-            height=700,
-            min_size=(680, 520),
+            width=380,
+            height=640,
+            resizable=False,
             frameless=True,
             easy_drag=False,
             shadow=True,
-            background_color="#090d16"
+            background_color="#0b0f19"
         )
         api.set_window(window)
 

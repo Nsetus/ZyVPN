@@ -18,7 +18,7 @@ class VpnNode:
     security_settings: Dict[str, Any] = field(default_factory=dict)
     country: str = ""                 # e.g. "Sweden"
     country_code: str = ""            # e.g. "se"
-    flag: str = ""                    # e.g. "🇸🇪"
+    flag: str = ""
     flow: str = ""                    # xtls-rprx-vision
     ping_ms: Optional[int] = None
     raw_link: str = ""

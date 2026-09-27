@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZyVPN - Universal VPN Client</title>
+  <title>ZyVPN</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="widget-body">
 
-  <!-- Top Integrated Titlebar (Draggable with sleek window controls) -->
+  <!-- Titlebar -->
   <header class="titlebar pywebview-drag-region">
     <div class="titlebar-left">
       <div class="logo-area">
         <div class="logo-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           </svg>
         </div>
@@ -21,19 +21,15 @@
       </div>
       <div id="header-status" class="header-status status-disconnected">
         <span class="status-dot"></span>
-        <span id="status-text">Отключено</span>
+        <span id="status-text">Не подключено</span>
       </div>
     </div>
-    
+
     <div class="titlebar-center pywebview-drag-region"></div>
 
     <div class="window-controls no-drag">
       <button id="win-btn-minimize" class="win-btn" title="Свернуть">
         <svg width="10" height="10" viewBox="0 0 10 1"><rect width="10" height="1" fill="currentColor"/></svg>
-      </button>
-      <button id="win-btn-maximize" class="win-btn" title="Развернуть">
-        <svg id="icon-win-max" width="10" height="10" viewBox="0 0 10 10"><rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
-        <svg id="icon-win-restore" width="10" height="10" viewBox="0 0 10 10" style="display:none;"><path d="M2.5 0.5h7v7h-7z M0.5 2.5h7v7h-7z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
       </button>
       <button id="win-btn-close" class="win-btn win-close" title="Закрыть">
         <svg width="10" height="10" viewBox="0 0 10 10"><path d="M0.5 0.5l9 9M9.5 0.5l-9 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
@@ -41,250 +37,284 @@
     </div>
   </header>
 
-  <!-- Navigation Tabs -->
-  <nav class="nav-container">
-    <div class="nav-segmented">
-      <button class="tab-btn active" data-tab="dashboard">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        Главная
-      </button>
-      <button class="tab-btn" data-tab="servers">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
-        Серверы <span class="tab-badge" id="nodes-count-tab">0</span>
-      </button>
-      <button class="tab-btn" data-tab="checker">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        Проверка
-      </button>
-      <button class="tab-btn" data-tab="subscriptions">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Подписки
-      </button>
-      <button class="tab-btn" data-tab="routing">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-        Маршрутизация
-      </button>
-      <button class="tab-btn" data-tab="logs">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
-        Логи
-      </button>
-    </div>
-  </nav>
+  <!-- Viewport -->
+  <main class="widget-viewport">
 
-  <!-- TAB 1: Dashboard -->
-  <div id="tab-dashboard" class="tab-content active">
-    <div class="dashboard-grid">
+    <!-- Screen 1: Dashboard -->
+    <div id="view-dashboard" class="widget-screen">
       
-      <div class="hero-card">
-        <button id="main-connect-btn" class="connect-btn">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/>
-            <line x1="12" y1="2" x2="12" y2="12"/>
-          </svg>
-          <span id="connect-btn-label">ПОДКЛЮЧИТЬ</span>
-        </button>
-
-        <!-- Selected Node Card -->
-        <div id="selected-node-trigger" class="selected-node-box">
-          <div style="display: flex; align-items: center; gap: 14px; min-width: 0;">
-            <div id="selected-node-flag" class="node-flag-box">
-              <span class="flag-emoji">🌐</span>
+      <!-- Power Button Area -->
+      <div class="hero-power-area">
+        <div class="power-glow-ring" id="power-glow-ring">
+          <button id="main-connect-btn" class="power-btn" title="Подключить или отключить VPN">
+            <div class="power-btn-inner">
+              <svg class="power-icon" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/>
+                <line x1="12" y1="2" x2="12" y2="12"/>
+              </svg>
             </div>
-            <div class="node-info-main" style="min-width: 0; text-align: left;">
-              <div id="selected-node-name" class="node-title">Сервер не выбран</div>
-              <div id="selected-node-subtitle" class="node-subtitle">Выберите сервер из списка</div>
-            </div>
-          </div>
-          <div style="display: flex; align-items: center; gap: 12px; flex-shrink: 0;">
-            <span id="selected-node-ping" class="ping-tag">- ms</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-        </div>
-
-        <!-- Active IP & Location Card -->
-        <div id="ip-info-box" class="ip-info-box">
-          <div class="ip-info-left">
-            <div id="ip-flag-box" class="ip-flag-box">
-              <span id="ip-flag-emoji" class="flag-emoji">🌐</span>
-            </div>
-            <div class="ip-text-col">
-              <div class="ip-top-line">
-                <span class="ip-badge-status" id="ip-badge-status">Ваш IP</span>
-                <span id="ip-country-text" class="ip-country-text">Определение...</span>
-              </div>
-              <div class="ip-bottom-line">
-                <span id="ip-address-val" class="ip-address-val">—</span>
-                <span id="ip-city-val" class="ip-city-val"></span>
-              </div>
-            </div>
-          </div>
-          <button id="btn-refresh-ip" class="btn-refresh-ip" title="Обновить IP и геолокацию">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
           </button>
+        </div>
+        <div class="power-label-wrap">
+          <span id="connect-btn-label" class="power-status-label">Подключить</span>
+          <span id="uptime-display" class="power-uptime">00:00:00</span>
         </div>
       </div>
 
-      <!-- Quick Toggles -->
-      <div class="controls-card">
-        <div class="control-row">
-          <div class="control-label-area">
-            <h4>Авто-маршрутизация (Обход РФ и LAN)</h4>
-            <p>Сайты РФ (Госуслуги, банки, VK, Ozon) и локальная сеть идут напрямую, всё остальное — через VPN</p>
+      <!-- IP / Geo Pill -->
+      <div id="ip-info-box" class="widget-ip-pill">
+        <div class="ip-pill-content">
+          <span id="ip-flag-box" class="flag-placeholder-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+              <path d="M2 12h20"/>
+            </svg>
+          </span>
+          <div class="ip-pill-text">
+            <span id="ip-badge-status" class="ip-status-tag">IP</span>
+            <span id="ip-address-val" class="ip-address-tag">—</span>
+            <span id="ip-country-text" class="ip-geo-tag">Определяем сеть...</span>
+            <span id="ip-city-val" class="ip-city-tag" style="display:none;"></span>
+          </div>
+        </div>
+        <button id="btn-refresh-ip" class="btn-refresh-mini" title="Обновить сетевые данные">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        </button>
+      </div>
+
+      <!-- Active Server Card -->
+      <div class="widget-card-section">
+        <div class="section-micro-label">Сервер для подключения</div>
+        <div id="selected-node-trigger" class="node-widget-card" role="button" tabindex="0" title="Нажмите, чтобы выбрать другой сервер">
+          <div class="node-card-left">
+            <div id="selected-node-flag" class="node-flag-circle">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+                <path d="M2 12h20"/>
+              </svg>
+            </div>
+            <div class="node-text-col">
+              <div id="selected-node-name" class="node-title-cut">Сервер не выбран</div>
+              <div id="selected-node-subtitle" class="node-meta-cut">Нажмите для выбора из списка</div>
+            </div>
+          </div>
+          <div class="node-card-right">
+            <span id="selected-node-ping" class="ping-pill">- ms</span>
+            <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Routing Toggles -->
+      <div class="widget-toggles-card">
+        <div class="widget-toggle-row">
+          <div class="toggle-text">
+            <span class="toggle-title">Прямой доступ к сайтам РФ</span>
+            <span class="toggle-desc">Госуслуги, банки и локальные сервисы открываются без задержки</span>
           </div>
           <label class="switch">
             <input type="checkbox" id="toggle-routing" checked>
             <span class="slider"></span>
           </label>
         </div>
-
-        <div class="control-row">
-          <div class="control-label-area">
-            <h4>Режим туннеля (TUN / Wintun)</h4>
-            <p>Перехватывать весь системный трафик Windows (игры, Discord, службы). Если выключено — системный прокси</p>
+        <div class="widget-toggle-separator"></div>
+        <div class="widget-toggle-row">
+          <div class="toggle-text">
+            <span class="toggle-title">Режим TUN (для всех программ)</span>
+            <span class="toggle-desc">Охватывает игры, Discord, браузеры и системные службы</span>
           </div>
           <label class="switch">
             <input type="checkbox" id="toggle-tun">
             <span class="slider"></span>
           </label>
         </div>
+      </div>
 
-        <div class="control-row" style="border-top: 1px solid var(--border-color); padding-top: 12px;">
-          <div class="control-label-area">
-            <h4>Время подключения</h4>
-            <p id="uptime-display">00:00:00</p>
+      <!-- Bottom Dock Bar -->
+      <nav class="widget-dock">
+        <button class="dock-btn tab-btn" data-drawer="servers" data-tab="servers" title="Открыть список серверов">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+          <span>Серверы</span>
+          <span class="dock-badge" id="nodes-count-tab">0</span>
+        </button>
+
+        <button class="dock-btn tab-btn" data-drawer="subs" data-tab="subscriptions" title="Управление подписками">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Подписки</span>
+        </button>
+
+        <button class="dock-btn tab-btn" data-drawer="options" data-tab="checker" title="Настройки и проверка сайтов">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>Настройки</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Drawer 1: Servers List -->
+    <div id="drawer-servers" class="widget-drawer">
+      <div class="drawer-header">
+        <button class="drawer-back-btn" data-close-drawer="servers">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          <span>Назад</span>
+        </button>
+        <span class="drawer-title">Серверы</span>
+        <button id="btn-ping-all" class="drawer-action-btn" title="Проверить отклик всех серверов">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Отклик</span>
+        </button>
+      </div>
+
+      <div class="drawer-content">
+        <!-- Search bar -->
+        <div class="search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="search-servers" class="search-input" placeholder="Поиск по стране или протоколу...">
+        </div>
+
+        <!-- Filter Chips -->
+        <div class="filter-pills" id="server-filters">
+          <button class="filter-pill active" data-filter="all">Все (<span id="count-all">0</span>)</button>
+          <button class="filter-pill highlight-xhttp" data-filter="xhttp">XHTTP (<span id="count-xhttp">0</span>)</button>
+          <button class="filter-pill" data-filter="vless">VLESS</button>
+          <button class="filter-pill" data-filter="reality">Reality</button>
+          <button class="filter-pill" data-filter="grpc">gRPC</button>
+        </div>
+
+        <!-- Add Single Server Link -->
+        <div class="quick-import-bar">
+          <input type="text" id="quick-link-input" class="search-input" placeholder="Вставьте vless://, vmess:// или ss://">
+          <button id="btn-quick-import" class="btn-action-mini">Добавить</button>
+        </div>
+
+        <!-- Servers list -->
+        <div id="servers-container" class="server-grid"></div>
+      </div>
+    </div>
+
+    <!-- Drawer 2: Subscriptions -->
+    <div id="drawer-subs" class="widget-drawer">
+      <div class="drawer-header">
+        <button class="drawer-back-btn" data-close-drawer="subs">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          <span>Назад</span>
+        </button>
+        <span class="drawer-title">Подписки</span>
+        <div style="width: 44px;"></div>
+      </div>
+
+      <div class="drawer-content">
+        <div class="controls-card">
+          <div class="card-inner-title">Новая подписка</div>
+          <div class="add-sub-row">
+            <input type="text" id="sub-url-input" class="search-input" placeholder="Вставьте ссылку на подписку...">
+            <button id="btn-add-sub" class="btn-action-mini">Сохранить</button>
           </div>
-          <button id="btn-quick-ping" class="btn-icon">⚡ Тест задержки</button>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- TAB 2: Servers -->
-  <div id="tab-servers" class="tab-content">
-    <div class="toolbar">
-      <div class="search-box">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="search-servers" class="search-input" placeholder="Поиск по стране, имени или протоколу...">
-      </div>
-      <button id="btn-ping-all" class="btn-action">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        Пинг всех
-      </button>
-    </div>
-
-    <!-- Filter Pills -->
-    <div class="filter-pills" id="server-filters">
-      <button class="filter-pill active" data-filter="all">Все (<span id="count-all">0</span>)</button>
-      <button class="filter-pill highlight-xhttp" data-filter="xhttp">⚡ XHTTP (<span id="count-xhttp">0</span>)</button>
-      <button class="filter-pill" data-filter="vless">VLESS</button>
-      <button class="filter-pill" data-filter="reality">Reality</button>
-      <button class="filter-pill" data-filter="grpc">gRPC</button>
-    </div>
-
-    <div id="servers-container" class="server-grid">
-      <!-- Populated dynamically -->
-    </div>
-  </div>
-
-  <!-- TAB: Blocked Services Checker -->
-  <div id="tab-checker" class="tab-content">
-    <div class="checker-banner">
-      <div class="checker-banner-info">
-        <div class="checker-banner-title">
-          <div class="checker-icon-badge">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          </div>
-          <div>
-            <h3>Проверка сервисов в РФ</h3>
-            <p>Тестирование доступности заблокированных ресурсов через текущее подключение VPN</p>
+          <div class="hint-muted">
+            Подходят любые ссылки на подписки: Clash, Sing-box, Base64 или набор ключей VLESS/Reality.
           </div>
         </div>
-      </div>
-      <button id="btn-check-services" class="btn-action check-all-btn">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        <span id="btn-check-services-label">Проверить все сервисы</span>
-      </button>
-    </div>
 
-    <!-- Summary status -->
-    <div id="checker-summary" class="checker-summary" style="display: none;">
-      <div class="checker-summary-left">
-        <span id="checker-summary-icon" class="summary-icon">🟢</span>
-        <span id="checker-summary-text" class="summary-text">Все сервисы доступны</span>
-      </div>
-      <span id="checker-summary-stats" class="summary-stats">8/8 доступно</span>
-    </div>
-
-    <!-- Services Grid -->
-    <div id="services-container" class="services-grid">
-      <!-- Populated dynamically -->
-    </div>
-  </div>
-
-  <!-- TAB 3: Subscriptions -->
-  <div id="tab-subscriptions" class="tab-content">
-    <div class="controls-card">
-      <h3 style="margin-bottom: 12px; font-size: 16px;">Добавить подписку или ссылку</h3>
-      <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-        <input type="text" id="sub-url-input" class="search-input" placeholder="Вставьте ссылку на подписку (Base64 / Clash / Sing-box) или одиночный vless://...">
-        <button id="btn-add-sub" class="btn-action">Добавить</button>
-      </div>
-      <div style="font-size: 12px; color: var(--text-muted);">
-        Поддерживаются любые подписки: VLESS Reality, XHTTP over TCP, VMess, Trojan, Shadowsocks, Hysteria 2, TUIC, а также ссылки Clash Meta YAML.
+        <div class="card-inner-title" style="margin-top: 14px; margin-bottom: 6px;">Подключенные подписки</div>
+        <div id="subs-container" class="subs-list"></div>
       </div>
     </div>
 
-    <h3 style="font-size: 16px; margin-top: 10px;">Мои подписки</h3>
-    <div id="subs-container" style="display: flex; flex-direction: column; gap: 10px;">
-      <!-- Populated dynamically -->
-    </div>
-  </div>
+    <!-- Drawer 3: Settings & Tools -->
+    <div id="drawer-options" class="widget-drawer">
+      <div class="drawer-header">
+        <button class="drawer-back-btn" data-close-drawer="options">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          <span>Назад</span>
+        </button>
+        <span class="drawer-title">Настройки и доступ</span>
+        <div style="width: 44px;"></div>
+      </div>
 
-  <!-- TAB 4: Routing Rules -->
-  <div id="tab-routing" class="tab-content">
-    <div class="controls-card">
-      <h3 style="font-size: 16px; margin-bottom: 12px;">Настройки маршрутизации</h3>
-      
-      <div class="control-row">
-        <div class="control-label-area">
-          <h4>Режим маршрутизации</h4>
-          <p>Выберите, как распределять трафик</p>
+      <div class="drawer-content">
+        
+        <!-- Network Settings -->
+        <div class="controls-card">
+          <div class="card-inner-title">Маршрутизация и DNS</div>
+          
+          <div class="option-field">
+            <label class="field-label" for="select-routing-mode">Распределение интернет-трафика:</label>
+            <select id="select-routing-mode" class="custom-select">
+              <option value="bypass_ru_lan">Российские сайты напрямую, остальные через VPN</option>
+              <option value="global">Весь трафик без исключений через VPN</option>
+            </select>
+          </div>
+
+          <div class="option-field" style="margin-top: 10px;">
+            <label class="field-label" for="select-dns">DNS-сервер для защищенных запросов:</label>
+            <select id="select-dns" class="custom-select">
+              <option value="1.1.1.1">Cloudflare (1.1.1.1)</option>
+              <option value="8.8.8.8">Google DNS (8.8.8.8)</option>
+              <option value="77.88.8.8">Yandex DNS (77.88.8.8)</option>
+            </select>
+          </div>
         </div>
-        <select id="select-routing-mode" class="custom-select">
-          <option value="bypass_ru_lan">Обход РФ и LAN (Рекомендуется)</option>
-          <option value="global">Весь трафик через VPN (Global)</option>
-        </select>
-      </div>
 
-      <div class="control-row" style="margin-top: 14px;">
-        <div class="control-label-area">
-          <h4>DNS Сервер для защищенных запросов</h4>
-          <p>Предотвращает утечки DNS (DNS Leaks)</p>
+        <!-- Service Checker -->
+        <div class="controls-card" style="margin-top: 12px;">
+          <div class="checker-top-row">
+            <div>
+              <div class="card-inner-title" style="margin-bottom: 2px;">Проверка доступности сайтов</div>
+              <div class="hint-muted">Проверяем отклик популярных сервисов через VPN</div>
+            </div>
+            <button id="btn-check-services" class="btn-action-mini">
+              <span id="btn-check-services-label">Проверить</span>
+            </button>
+          </div>
+
+          <!-- Summary banner -->
+          <div id="checker-summary" class="checker-summary" style="display: none; margin-top: 10px;">
+            <div class="checker-summary-left">
+              <span class="status-indicator-dot dot-ok" id="checker-summary-icon"></span>
+              <span id="checker-summary-text">Сервисы доступны</span>
+            </div>
+            <span id="checker-summary-stats" class="summary-stats">8/8</span>
+          </div>
+
+          <!-- Services Grid -->
+          <div id="services-container" class="services-widget-grid" style="margin-top: 10px;"></div>
+
+          <!-- Gemini Test Trigger -->
+          <button id="btn-open-gemini" class="gemini-launch-card" style="margin-top: 12px;">
+            <div class="gemini-sparkle">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2C12 7.523 7.523 12 2 12C7.523 12 12 16.477 12 22C12 16.477 16.477 12 22 12C16.477 12 12 7.523 12 2Z" fill="url(#gemini-grad-card)"/>
+                <defs>
+                  <linearGradient id="gemini-grad-card" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#4E82EE"/>
+                    <stop offset="0.5" stop-color="#9B72CB"/>
+                    <stop offset="1" stop-color="#D96570"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div class="gemini-card-text">
+              <span class="gemini-card-title">Проверка Google Gemini</span>
+              <span class="gemini-card-sub">Тест связи с нейросетью без региональных блокировок</span>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
         </div>
-        <select id="select-dns" class="custom-select">
-          <option value="1.1.1.1">Cloudflare DNS (1.1.1.1)</option>
-          <option value="8.8.8.8">Google DNS (8.8.8.8)</option>
-          <option value="77.88.8.8">Yandex DNS (77.88.8.8)</option>
-        </select>
-      </div>
 
-      <div style="margin-top: 16px; padding: 14px; background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); font-size: 13px; color: #cbd5e1; line-height: 1.6;">
-        <b>Как работает авто-маршрутизация в ZyVPN:</b>
-        <br>• Домены <code>.ru</code>, <code>.su</code>, <code>.рф</code>, Госуслуги, Сбер, Т-Банк, Яндекс, VK, Кинопоиск и российские IP-адреса направляются напрямую через вашего интернет-провайдера на максимальной скорости.
-        <br>• Все заблокированные ресурсы, YouTube, соцсети и зарубежные сайты прозрачно проходят через выбранный VPN сервер и протокол (включая XHTTP).
+        <!-- Logs Accordion -->
+        <details class="logs-details" style="margin-top: 12px;">
+          <summary class="logs-summary">
+            <span>Журнал работы</span>
+            <button id="btn-clear-logs" class="btn-text-action" onclick="event.stopPropagation();">Очистить</button>
+          </summary>
+          <div id="logs-container" class="logs-console-widget">Журнал пуст.</div>
+        </details>
+
       </div>
     </div>
-  </div>
 
-  <!-- TAB 5: Logs -->
-  <div id="tab-logs" class="tab-content">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <h3 style="font-size: 16px;">Логи сетевого ядра</h3>
-      <button id="btn-clear-logs" class="btn-icon">Очистить</button>
-    </div>
-    <div id="logs-container" class="logs-console">Ожидание подключения...</div>
-  </div>
+  </main>
 
   <!-- Modal: Test Gemini Dialogue -->
   <div id="modal-gemini-test" class="modal-overlay" style="display: none;">
@@ -292,7 +322,7 @@
       <div class="modal-header">
         <div class="modal-title-wrap">
           <div class="gemini-icon-circle">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <path d="M12 2C12 7.523 7.523 12 2 12C7.523 12 12 16.477 12 22C12 16.477 16.477 12 22 12C16.477 12 12 7.523 12 2Z" fill="url(#gemini-grad-modal)"/>
               <defs>
                 <linearGradient id="gemini-grad-modal" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
@@ -304,34 +334,29 @@
             </svg>
           </div>
           <div>
-            <h3 class="modal-title">Тестирование диалога Google Gemini</h3>
-            <p class="modal-subtitle">Проверка отправки сообщений и генерации через сервер VPN</p>
+            <h3 class="modal-title">Тест Google Gemini</h3>
+            <p class="modal-subtitle">Проверка ответа нейросети через текущий сервер</p>
           </div>
         </div>
         <button id="btn-close-gemini-modal" class="btn-modal-close" title="Закрыть">&times;</button>
       </div>
 
       <div class="modal-body">
-        <div class="gemini-diag-panel" id="gemini-modal-diag">
-          <!-- Diagnostics rendered dynamically -->
+        <div class="gemini-diag-panel" id="gemini-modal-diag"></div>
+
+        <div class="gemini-field-group">
+          <label class="gemini-field-label">Текст запроса:</label>
+          <textarea id="gemini-test-prompt" class="gemini-input-textarea" rows="2" placeholder="Напишите вопрос...">Привет! Напиши кратко, ты сейчас отвечаешь без ошибок региона?</textarea>
         </div>
 
         <div class="gemini-field-group">
-          <label class="gemini-field-label">Тестовое сообщение / вопрос для модели:</label>
-          <textarea id="gemini-test-prompt" class="gemini-input-textarea" rows="2" placeholder="Введите фразу...">Привет! Напиши кратко, ты сейчас работаешь через этот VPN сервер?</textarea>
-        </div>
-
-        <div class="gemini-field-group">
-          <label class="gemini-field-label">
-            Google Gemini API Key 
-            <span class="label-hint">(Необязательно — без ключа проверяются региональные шлюзы и API генерации):</span>
-          </label>
-          <input type="password" id="gemini-test-key" class="search-input" placeholder="AIzaSy... (оставьте пустым для авто-проверки)">
+          <label class="gemini-field-label">API-ключ (необязательно):</label>
+          <input type="password" id="gemini-test-key" class="search-input" placeholder="Оставьте пустым для авто-проверки через шлюз">
         </div>
 
         <div id="gemini-test-result-box" class="gemini-result-box" style="display: none;">
           <div class="gemini-result-header">
-            <span id="gemini-result-status-title">Результат:</span>
+            <span id="gemini-result-status-title">Ответ:</span>
             <span id="gemini-result-time" class="ping-tag ping-good"></span>
           </div>
           <div id="gemini-result-content" class="gemini-result-content"></div>
@@ -341,11 +366,16 @@
       <div class="modal-footer">
         <button id="btn-close-gemini-footer" class="btn-secondary">Закрыть</button>
         <button id="btn-run-gemini-test" class="btn-action">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          <span id="btn-run-gemini-label">Отправить / Проверить</span>
+          <span id="btn-run-gemini-label">Отправить</span>
         </button>
       </div>
     </div>
+  </div>
+
+  <!-- Compatibility hooks for background pollers -->
+  <div style="display:none;">
+    <button id="btn-quick-ping"></button>
+    <span id="ip-flag-emoji"></span>
   </div>
 
   <script src="app.js"></script>
